@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Task - Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            window.location.href = "/login";
+        }
+    </script>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<div class="navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <span class="logo-text">Task Manager</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/tasks" class="nav-link">Tasks</a>
+            <a href="/profile" class="nav-link">Profile</a>
+        </div>
+        <div class="nav-right">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" onclick="logout()">Log out</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="add-task-container">
+    <div class="form-card">
+        <h1>📝 Add New Task</h1>
+        
+        <form onsubmit="handleAddTask(event)">
+            <div class="form-group">
+                <label for="title">Task Title *</label>
+                <input 
+                    type="text" 
+                    id="title" 
+                    placeholder="Enter task title" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="desc">Description</label>
+                <textarea 
+                    id="desc" 
+                    placeholder="Enter task description (optional)" 
+                    rows="5"
+                ></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">✅ Add Task</button>
+                <button type="button" class="btn-cancel" onclick="window.location.href='/tasks'">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+function logout() {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    window.location.href = "/";
+}
+
+window.addEventListener('load', function() {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+        document.getElementById('userEmail').textContent = userEmail;
+    }
+});
+
+function handleAddTask(event) {
+    event.preventDefault();
+    addTask();
+}
+</script>
+
+</body>
+</html>

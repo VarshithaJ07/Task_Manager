@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Manager - Home</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            window.location.href = "/login";
+        }
+    </script>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<div class="navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <span class="logo-text">Task Manager</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="/home" class="nav-link active">Home</a>
+            <a href="/tasks" class="nav-link">Tasks</a>
+            <a href="/profile" class="nav-link">Profile</a>
+        </div>
+        <div class="nav-right">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" onclick="logout()">Log out</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="home-container">
+    <div class="home-content">
+        <div class="content-left">
+            <h1>Welcome to Task Manager</h1>
+            <p style="font-size: 20px;"">Organize your life with our simple and intuitive task management site. Try it now!</p>
+            <p style="font-size: 16px; color: #666; margin-top: 20px;">
+                Keep track of your daily activities and boost your productivity. Create tasks, set priorities, and achieve your goals efficiently.
+            </p>
+            <button class="go-to-tasks-btn" onclick="window.location.href='/tasks'">Go to Tasks →</button>
+        </div>
+        <div class="content-right">
+            <div class="illustration">
+                <img src="https://media.istockphoto.com/id/1493484120/vector/young-woman-standing-near-big-clipboard-and-making-notes-process-of-planning-and-organizing.jpg?s=612x612&w=0&k=20&c=mbsdBRWP1mjJ2f3RWo4R3kCKedHNA_fNjs86nFjTwuQ=" alt="Task Planning Illustration" />
+            </div>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <div class="action-card">
+            <div class="action-icon">📝</div>
+            <h3>Add Task</h3>
+            <p>Create new tasks and organize your priorities</p>
+            <button onclick="window.location.href='/add-task'" class="action-btn">Add Task</button>
+        </div>
+        <div class="action-card">
+            <div class="action-icon">📋</div>
+            <h3>View All Tasks</h3>
+            <p>See all your tasks and their status</p>
+            <button onclick="window.location.href='/tasks'" class="action-btn">View Tasks</button>
+        </div>
+        <div class="action-card">
+            <div class="action-icon">👤</div>
+            <h3>My Profile</h3>
+            <p>Manage your profile and preferences</p>
+            <button onclick="window.location.href='/profile'" class="action-btn">Go to Profile</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function logout() {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    window.location.href = "/";
+}
+
+window.addEventListener('load', function() {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+        document.getElementById('userEmail').textContent = userEmail;
+    }
+});
+</script>
+
+</body>
+</html>

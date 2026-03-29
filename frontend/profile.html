@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile - Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            window.location.href = "/login";
+        }
+    </script>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<div class="navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <span class="logo-text">Task Manager</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/tasks" class="nav-link">Tasks</a>
+            <a href="/profile" class="nav-link active">Profile</a>
+        </div>
+        <div class="nav-right">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" onclick="logout()">Log out</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="profile-container">
+    <div class="profile-wrapper">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">👤</div>
+                <h1>My Profile</h1>
+                <p class="profile-subtitle">Manage your account information</p>
+            </div>
+
+            <div class="profile-content" id="profile">
+                <div class="loading">Loading profile...</div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="btn-settings" onclick="alert('Settings feature coming soon!')"> Settings</button>
+                <button class="btn-logout" onclick="logout()"> Log out</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function logout() {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    window.location.href = "/";
+}
+
+window.addEventListener('load', function() {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+        document.getElementById('userEmail').textContent = userEmail;
+    }
+
+    const id = localStorage.getItem("userId");
+    fetch(`http://127.0.0.1:5000/user/${id}`)
+    .then(res=>res.json())
+    .then(user=>{
+        document.getElementById('profile').innerHTML = `
+            <div class="profile-field">
+                <div class="field-icon">👤</div>
+                <div class="field-content">
+                    <label>Full Name</label>
+                    <p>${user.name || 'N/A'}</p>
+                </div>
+            </div>
+            <div class="profile-field">
+                <div class="field-icon">✉️</div>
+                <div class="field-content">
+                    <label>Email Address</label>
+                    <p>${user.email || 'N/A'}</p>
+                </div>
+            </div>
+            <div class="profile-field">
+                <div class="field-icon">🆔</div>
+                <div class="field-content">
+                    <label>User ID</label>
+                    <p>${user.id || 'N/A'}</p>
+                </div>
+            </div>
+            <div class="profile-field">
+                <div class="field-icon">📅</div>
+                <div class="field-content">
+                    <label>Member Since</label>
+                    <p>2026</p>
+                </div>
+            </div>
+        `;
+    })
+    .catch(err => {
+        document.getElementById('profile').innerHTML = '<p style="color: #f44336; text-align: center; padding: 20px;">Error loading profile</p>';
+    });
+});
+</script>
+
+</body>
+</html>
