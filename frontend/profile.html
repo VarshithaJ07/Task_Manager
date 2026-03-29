@@ -48,6 +48,30 @@
                 <div class="loading">Loading profile...</div>
             </div>
 
+            <div class="profile-stats" id="stats">
+                <div class="stat-item">
+                    <span class="stat-icon">📋</span>
+                    <div class="stat-info">
+                        <p class="stat-label">Tasks Created</p>
+                        <p class="stat-value" id="taskCount">0</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">✅</span>
+                    <div class="stat-info">
+                        <p class="stat-label">Completed</p>
+                        <p class="stat-value" id="completedCount">0</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">⏳</span>
+                    <div class="stat-info">
+                        <p class="stat-label">Pending</p>
+                        <p class="stat-value" id="pendingCount">0</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="profile-actions">
                 <button class="btn-settings" onclick="alert('Settings feature coming soon!')"> Settings</button>
                 <button class="btn-logout" onclick="logout()"> Log out</button>
@@ -70,42 +94,66 @@ window.addEventListener('load', function() {
     }
 
     const id = localStorage.getItem("userId");
+    
+    // Fetch user profile
     fetch(`http://127.0.0.1:5000/user/${id}`)
     .then(res=>res.json())
     .then(user=>{
         document.getElementById('profile').innerHTML = `
-            <div class="profile-field">
-                <div class="field-icon">👤</div>
-                <div class="field-content">
-                    <label>Full Name</label>
-                    <p>${user.name || 'N/A'}</p>
+            <div class="profile-section">
+                <h3 class="section-title">Personal Information</h3>
+                <div class="profile-field">
+                    <div class="field-icon">👤</div>
+                    <div class="field-content">
+                        <label>Full Name</label>
+                        <p>${user.name || 'N/A'}</p>
+                    </div>
+                </div>
+                <div class="profile-field">
+                    <div class="field-icon">✉️</div>
+                    <div class="field-content">
+                        <label>Email Address</label>
+                        <p>${user.email || 'N/A'}</p>
+                    </div>
                 </div>
             </div>
-            <div class="profile-field">
-                <div class="field-icon">✉️</div>
-                <div class="field-content">
-                    <label>Email Address</label>
-                    <p>${user.email || 'N/A'}</p>
+            <div class="profile-section">
+                <h3 class="section-title">Account Details</h3>
+                <div class="profile-field">
+                    <div class="field-icon">🆔</div>
+                    <div class="field-content">
+                        <label>User ID</label>
+                        <p>${user.id || 'N/A'}</p>
+                    </div>
                 </div>
-            </div>
-            <div class="profile-field">
-                <div class="field-icon">🆔</div>
-                <div class="field-content">
-                    <label>User ID</label>
-                    <p>${user.id || 'N/A'}</p>
-                </div>
-            </div>
-            <div class="profile-field">
-                <div class="field-icon">📅</div>
-                <div class="field-content">
-                    <label>Member Since</label>
-                    <p>2026</p>
+                <div class="profile-field">
+                    <div class="field-icon">📅</div>
+                    <div class="field-content">
+                        <label>Member Since</label>
+                        <p>March 2026</p>
+                    </div>
                 </div>
             </div>
         `;
     })
     .catch(err => {
         document.getElementById('profile').innerHTML = '<p style="color: #f44336; text-align: center; padding: 20px;">Error loading profile</p>';
+    });
+
+    // Fetch task statistics
+    fetch(`http://127.0.0.1:5000/api/tasks`)
+    .then(res=>res.json())
+    .then(tasks=>{
+        const completed = Array.isArray(tasks) ? tasks.filter(t => t.status === 'completed').length : 0;
+        const total = Array.isArray(tasks) ? tasks.length : 0;
+        const pending = total - completed;
+        
+        document.getElementById('taskCount').textContent = total;
+        document.getElementById('completedCount').textContent = completed;
+        document.getElementById('pendingCount').textContent = pending;
+    })
+    .catch(err => {
+        console.log('Error loading task stats');
     });
 });
 </script>
