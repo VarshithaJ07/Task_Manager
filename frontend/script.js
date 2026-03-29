@@ -1,42 +1,72 @@
-const API_URL = "http://127.0.0.1:5000/tasks";
+const API = "http://127.0.0.1:5000";
 
-// 🔹 Load all tasks
+// ================= LOAD TASKS =================
 function loadTasks() {
-    fetch(API_URL)
-        .then(res => res.json())
-        .then(tasks => {
-            const taskList = document.getElementById("taskList");
+    const taskList = document.getElementById("taskList") || document.getElementById("list");
+    if (!taskList) return; // prevent error on other pages
+
+    console.log("Loading tasks from API...");
+    
+    fetch(`${API}/api/tasks`)
+        .then(res => {
+            console.log("Response status:", res.status);
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return res.json();
+        })
+        .then(data => {
+            console.log("Tasks data received:", data);
+            
+            // Handle both array and object responses
+            let tasks = Array.isArray(data) ? data : (data.tasks || []);
+            
             taskList.innerHTML = "";
 
+            const emptyState = document.getElementById("emptyState");
+            
+            if (!tasks || tasks.length === 0) {
+                console.log("No tasks found");
+                if (emptyState) emptyState.style.display = "block";
+                return;
+            }
+            
+            if (emptyState) emptyState.style.display = "none";
+
+            console.log(`Rendering ${tasks.length} tasks...`);
+            
             tasks.forEach(task => {
                 const li = document.createElement("li");
+                li.className = task.status === "completed" ? "task-item completed" : "task-item";
 
                 const textDiv = document.createElement("div");
                 textDiv.className = "task-text";
-
                 textDiv.innerHTML = `
-                    <strong>${task.title}</strong><br>
-                    <small>${task.description || ""}</small><br>
-                    <small>Status: ${task.status}</small>
+                    <div class="task-title">${task.title || "Untitled"}</div>
+                    <div class="task-description">${task.description || "No description"}</div>
+                    <div class="task-status"><span class="status-badge status-${task.status}">${task.status}</span></div>
                 `;
 
-                if (task.status === "completed") {
-                    textDiv.classList.add("completed");
-                }
-
                 const actionsDiv = document.createElement("div");
-                actionsDiv.className = "actions";
+                actionsDiv.className = "task-actions";
 
                 // ✅ Complete button
                 const completeBtn = document.createElement("button");
-                completeBtn.innerText = "✔";
-                completeBtn.onclick = () => completeTask(task.id);
+                completeBtn.type = "button";
+                completeBtn.className = "btn-complete";
+                completeBtn.innerText = task.status === "completed" ? "↩ Undo" : "✔ Complete";
+                completeBtn.onclick = function(e) {
+                    e.preventDefault();
+                    completeTask(task.id);
+                };
 
                 // ❌ Delete button
                 const deleteBtn = document.createElement("button");
-                deleteBtn.innerText = "✖";
-                deleteBtn.classList.add("delete");
-                deleteBtn.onclick = () => deleteTask(task.id);
+                deleteBtn.type = "button";
+                deleteBtn.className = "btn-delete";
+                deleteBtn.innerText = "✖ Delete";
+                deleteBtn.onclick = function(e) {
+                    e.preventDefault();
+                    deleteTask(task.id);
+                };
 
                 actionsDiv.appendChild(completeBtn);
                 actionsDiv.appendChild(deleteBtn);
@@ -46,20 +76,24 @@ function loadTasks() {
 
                 taskList.appendChild(li);
             });
+        })
+        .catch(err => {
+            console.error("Error loading tasks:", err);
+            taskList.innerHTML = `<li style="color: red; padding: 20px;">Error loading tasks: ${err.message}</li>`;
         });
 }
 
-// 🔹 Add task
+// ================= ADD TASK =================
 function addTask() {
-    const title = document.getElementById("title").value.trim();
-    const desc = document.getElementById("desc").value.trim();
+    const title = document.getElementById("title")?.value.trim();
+    const desc = document.getElementById("desc")?.value.trim();
 
     if (!title) {
         alert("Title is required!");
         return;
     }
 
-    fetch(API_URL, {
+    fetch(`${API}/api/tasks`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -69,26 +103,72 @@ function addTask() {
             description: desc
         })
     })
-    .then(() => {
-        document.getElementById("title").value = "";
-        document.getElementById("desc").value = "";
-        loadTasks();
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            alert("Task Added ✅");
+            // Redirect to tasks page to see the new task
+            window.location.href = "/tasks";
+        } else {
+            alert("Error adding task");
+        }
+    })
+    .catch(err => {
+        alert("Error: " + err);
     });
 }
 
-// 🔹 Mark task as completed
+// ================= COMPLETE =================
 function completeTask(id) {
-    fetch(`${API_URL}/${id}`, {
-        method: "PUT"
-    }).then(() => loadTasks());
+    fetch(`${API}/api/tasks/${id}`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message || data.status) {
+            console.log("Task updated:", data);
+            loadTasks();
+        } else {
+            alert("Error updating task");
+        }
+    })
+    .catch(err => {
+        console.error("Error completing task:", err);
+        alert("Error: " + err);
+    });
 }
 
-// 🔹 Delete task
+// ================= DELETE =================
 function deleteTask(id) {
-    fetch(`${API_URL}/${id}`, {
-        method: "DELETE"
-    }).then(() => loadTasks());
+    if (!confirm("Are you sure you want to delete this task?")) {
+        return;
+    }
+    
+    fetch(`${API}/api/tasks/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.message) {
+            console.log("Task deleted:", data);
+            loadTasks();
+        } else {
+            alert("Error deleting task");
+        }
+    })
+    .catch(err => {
+        console.error("Error deleting task:", err);
+        alert("Error: " + err);
+    });
 }
 
-// Initial load
-loadTasks();
+// ================= AUTO LOAD =================
+window.onload = () => {
+    loadTasks();
+};
