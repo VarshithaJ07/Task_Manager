@@ -6,85 +6,133 @@ from db import get_db_connection
 app = Flask(__name__)
 CORS(app)
 
+
+@app.route('/')
+def home():
+    return "Task Manager API is running 🚀"
+
 # ✅ Create Task
 @app.route('/tasks', methods=['POST'])
 def create_task():
     data = request.json
 
-    # Validation
-    if not data.get("title"):
+    if not data or not data.get("title"):
         return jsonify({"error": "Title is required"}), 400
 
     conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
 
-    query = """
-        INSERT INTO tasks (title, description, status, created_date)
-        VALUES (%s, %s, %s, %s)
-    """
+    try:
+        query = """
+            INSERT INTO tasks (title, description, status, created_date)
+            VALUES (%s, %s, %s, %s)
+        """
+        values = (
+            data["title"],
+            data.get("description", ""),
+            "pending",
+            datetime.now()
+        )
 
-    values = (
-        data["title"],
-        data.get("description", ""),
-        "pending",
-        datetime.now()
-    )
+        cursor.execute(query, values)
+        conn.commit()
 
-    cursor.execute(query, values)
-    conn.commit()
+        return jsonify({"message": "Task created successfully"}), 201
 
-    cursor.close()
-    conn.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    return jsonify({"message": "Task created successfully"}), 201
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # ✅ Get All Tasks
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
     conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM tasks ORDER BY created_date DESC")
-    tasks = cursor.fetchall()
+    try:
+        cursor.execute("SELECT * FROM tasks ORDER BY created_date DESC")
+        tasks = cursor.fetchall()
+        return jsonify(tasks), 200
 
-    cursor.close()
-    conn.close()
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
-    return jsonify(tasks), 200
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # ✅ Update Task Status
 @app.route('/tasks/<int:id>', methods=['PUT'])
 def update_task(id):
     conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
 
-    cursor.execute(
-        "UPDATE tasks SET status = %s WHERE id = %s",
-        ("completed", id)
-    )
-    conn.commit()
+    try:
+        # Check if task exists
+        cursor.execute("SELECT * FROM tasks WHERE id = %s", (id,))
+        task = cursor.fetchone()
 
-    cursor.close()
-    conn.close()
+        if not task:
+            return jsonify({"error": "Task not found"}), 404
 
-    return jsonify({"message": "Task marked as completed"}), 200
+        cursor.execute(
+            "UPDATE tasks SET status = %s WHERE id = %s",
+            ("completed", id)
+        )
+        conn.commit()
+
+        return jsonify({"message": "Task marked as completed"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # ✅ Delete Task
 @app.route('/tasks/<int:id>', methods=['DELETE'])
 def delete_task(id):
     conn = get_db_connection()
+    if conn is None:
+        return jsonify({"error": "Database connection failed"}), 500
+
     cursor = conn.cursor()
 
-    cursor.execute("DELETE FROM tasks WHERE id = %s", (id,))
-    conn.commit()
+    try:
+        # Check if task exists
+        cursor.execute("SELECT * FROM tasks WHERE id = %s", (id,))
+        task = cursor.fetchone()
 
-    cursor.close()
-    conn.close()
+        if not task:
+            return jsonify({"error": "Task not found"}), 404
 
-    return jsonify({"message": "Task deleted successfully"}), 200
+        cursor.execute("DELETE FROM tasks WHERE id = %s", (id,))
+        conn.commit()
+
+        return jsonify({"message": "Task deleted successfully"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # ✅ Run Server
