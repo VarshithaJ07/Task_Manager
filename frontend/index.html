@@ -2,25 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Task Manager</title>
+    <title>Task Manager - Welcome</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-    <h1>Task Manager</h1>
-
-    <!-- Add Task -->
-    <div class="task-form">
-        <input type="text" id="title" placeholder="Enter task title">
-        <input type="text" id="desc" placeholder="Enter description (optional)">
-        <button onclick="addTask()">Add Task</button>
+<div class="landing-container">
+    <div class="landing-navbar">
+        <div class="landing-logo">
+            <span class="logo-icon">📋</span>
+            <span class="logo-text">Task Manager</span>
+        </div>
     </div>
 
-    <!-- Task List -->
-    <ul id="taskList"></ul>
+    <div class="landing-content">
+        <div class="landing-left">
+            <h1>Welcome to Task Manager</h1>
+            <p>Organize your life with our simple and intuitive task management site. Try it now!</p>
+            <div class="landing-buttons">
+                <button class="btn-register" onclick="window.location.href='/register'"> Register</button>
+                <button class="btn-login" onclick="window.location.href='/login'"> Login</button>
+            </div>
+        </div>
+
+        <div class="landing-right">
+            <div class="illustration">
+                <img src="https://static.vecteezy.com/system/resources/previews/015/678/435/original/task-management-illustration-concept-a-flat-illustration-isolated-on-white-background-vector.jpg" alt="Task Management Illustration" />
+            </div>
+        </div>
+    </div>
 </div>
 
-<script src="script.js"></script>
 </body>
 </html>

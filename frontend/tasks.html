@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tasks - Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        const userId = localStorage.getItem("userId");
+        if (!userId) {
+            window.location.href = "/login";
+        }
+    </script>
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<div class="navbar">
+    <div class="nav-container">
+        <div class="nav-left">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <span class="logo-text">Task Manager</span>
+            </div>
+        </div>
+        <div class="nav-center">
+            <a href="/home" class="nav-link">Home</a>
+            <a href="/tasks" class="nav-link active">Tasks</a>
+            <a href="/profile" class="nav-link">Profile</a>
+        </div>
+        <div class="nav-right">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" onclick="logout()">Log out</button>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="tasks-container">
+    <div class="tasks-header">
+        <h1>📋 My Tasks</h1>
+        <button class="add-task-btn" onclick="window.location.href='/add-task'">+ Add New Task</button>
+    </div>
+
+    <!-- Task List -->
+    <ul id="list" class="tasks-list"></ul>
+    <div id="emptyState" class="empty-state" style="display:none;">
+        <p>📭 No tasks yet. <a href="/add-task">Create your first task!</a></p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+function logout() {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    window.location.href = "/";
+}
+
+window.addEventListener('load', function() {
+    const userEmail = localStorage.getItem("userEmail");
+    if (userEmail) {
+        document.getElementById('userEmail').textContent = userEmail;
+    }
+    loadTasks();
+});
+</script>
+
+</body>
+</html>

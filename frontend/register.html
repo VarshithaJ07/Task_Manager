@@ -1,21 +1,121 @@
-<link rel="stylesheet" href="style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
 
-<h2>Register</h2>
-<input id="name" placeholder="Name">
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="register()">Register</button>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <span class="logo-icon">📋</span>
+            <h1>Task Manager</h1>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="auth-heading">Create Account</h2>
+        <p class="auth-subheading">Join us and start managing your tasks</p>
+
+        <!-- Form -->
+        <form onsubmit="handleRegister(event)" class="auth-form">
+            <!-- Name Field -->
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    placeholder="Enter your full name" 
+                    required
+                >
+                
+            </div>
+
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter your email" 
+                    required
+                >
+                
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Create a password" 
+                    required
+                >
+                
+            </div>
+
+            <!-- Register Button -->
+            <button type="submit" class="auth-button">Create Account</button>
+        </form>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>Already have an account?</span>
+        </div>
+
+        <!-- Login Link -->
+        <a href="/login" class="auth-link">Sign in here</a>
+
+        <!-- Back to Home -->
+        <p class="auth-footer">
+            <a href="/">← Back to Home</a>
+        </p>
+    </div>
+</div>
 
 <script>
+function handleRegister(event) {
+    event.preventDefault();
+    register();
+}
+
 function register(){
-    fetch("http://127.0.0.1:5000/register",{
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    
+    if(!name || !email || !password){
+        alert("Please fill in all fields");
+        return;
+    }
+
+    if(password.length < 6) {
+        alert("Password must be at least 6 characters long");
+        return;
+    }
+    
+    fetch("http://127.0.0.1:5000/api/register",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-            name:name.value,
-            email:email.value,
-            password:password.value
+            name:name,
+            email:email,
+            password:password
         })
-    }).then(()=>window.location="login.html");
+    }).then(res=>res.json())
+    .then(data=>{
+        if(data.message){
+            alert("Registration successful! Please login.");
+            window.location="/login";
+        }else{
+            alert("Registration failed: " + (data.error || "Unknown error"));
+        }
+    }).catch(err=>alert("Error: " + err));
 }
 </script>
+
+</body>
+</html>

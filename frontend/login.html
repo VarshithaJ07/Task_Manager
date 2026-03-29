@@ -1,26 +1,107 @@
-<link rel="stylesheet" href="style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Task Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
 
-<h2>Login</h2>
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<div class="auth-container">
+    <div class="auth-card">
+        <!-- Logo -->
+        <div class="auth-logo">
+            <span class="logo-icon">📋</span>
+            <h1>Task Manager</h1>
+        </div>
+
+        <!-- Heading -->
+        <h2 class="auth-heading">Welcome Back</h2>
+        <p class="auth-subheading">Sign in to your account</p>
+
+        <!-- Form -->
+        <form onsubmit="handleLogin(event)" class="auth-form">
+            <!-- Email Field -->
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter your email" 
+                    required
+                >
+                
+            </div>
+
+            <!-- Password Field -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    placeholder="Enter your password" 
+                    required
+                >
+                
+            </div>
+
+            <!-- Login Button -->
+            <button type="submit" class="auth-button">Sign In</button>
+        </form>
+
+        <!-- Divider -->
+        <div class="auth-divider">
+            <span>Don't have an account?</span>
+        </div>
+
+        <!-- Register Link -->
+        <a href="/register" class="auth-link">Create account here</a>
+
+        <!-- Back to Home -->
+        <p class="auth-footer">
+            <a href="/">← Back to Home</a>
+        </p>
+    </div>
+</div>
 
 <script>
+function handleLogin(event) {
+    event.preventDefault();
+    login();
+}
+
 function login(){
-    fetch("http://127.0.0.1:5000/login",{
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    
+    if(!email || !password){
+        alert("Please enter email and password");
+        return;
+    }
+    
+    fetch("http://127.0.0.1:5000/api/login",{
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-            email:email.value,
-            password:password.value
+            email:email,
+            password:password
         })
     })
     .then(res=>res.json())
     .then(data=>{
+        console.log("Login response:", data);
         if(data.id){
             localStorage.setItem("userId", data.id);
-            window.location="home.html";
-        }else alert("Invalid login");
-    });
+            localStorage.setItem("userName", data.name);
+            localStorage.setItem("userEmail", data.email);
+            window.location="/home";
+        }else{
+            alert("Invalid credentials. Please check your email and password.");
+        }
+    }).catch(err=>alert("Error: " + err));
 }
 </script>
+
+</body>
+</html>
+</html>
