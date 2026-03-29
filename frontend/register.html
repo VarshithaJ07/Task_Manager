@@ -1,0 +1,21 @@
+<link rel="stylesheet" href="style.css">
+
+<h2>Register</h2>
+<input id="name" placeholder="Name">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="register()">Register</button>
+
+<script>
+function register(){
+    fetch("http://127.0.0.1:5000/register",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({
+            name:name.value,
+            email:email.value,
+            password:password.value
+        })
+    }).then(()=>window.location="login.html");
+}
+</script>
