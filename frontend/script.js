@@ -1,6 +1,6 @@
 const API = "http://127.0.0.1:5000";
 
-// ================= LOAD TASKS =================
+// LOAD TASKS
 function loadTasks() {
     const taskList = document.getElementById("taskList") || document.getElementById("list");
     if (!taskList) return; // prevent error on other pages
@@ -48,7 +48,7 @@ function loadTasks() {
                 const actionsDiv = document.createElement("div");
                 actionsDiv.className = "task-actions";
 
-                // ✅ Complete button
+                // Complete button
                 const completeBtn = document.createElement("button");
                 completeBtn.type = "button";
                 completeBtn.className = "btn-complete";
@@ -58,7 +58,7 @@ function loadTasks() {
                     completeTask(task.id);
                 };
 
-                // ❌ Delete button
+                // Delete button
                 const deleteBtn = document.createElement("button");
                 deleteBtn.type = "button";
                 deleteBtn.className = "btn-delete";
@@ -83,7 +83,7 @@ function loadTasks() {
         });
 }
 
-// ================= ADD TASK =================
+//ADD TASK
 function addTask() {
     const title = document.getElementById("title")?.value.trim();
     const desc = document.getElementById("desc")?.value.trim();
@@ -118,7 +118,7 @@ function addTask() {
     });
 }
 
-// ================= COMPLETE =================
+// COMPLETE 
 function completeTask(id) {
     fetch(`${API}/api/tasks/${id}`, {
         method: "PUT",
@@ -141,7 +141,7 @@ function completeTask(id) {
     });
 }
 
-// ================= DELETE =================
+// DELETE
 function deleteTask(id) {
     if (!confirm("Are you sure you want to delete this task?")) {
         return;
@@ -168,7 +168,7 @@ function deleteTask(id) {
     });
 }
 
-// ================= AUTO LOAD =================
+// AUTO LOAD
 window.onload = () => {
     loadTasks();
 };
