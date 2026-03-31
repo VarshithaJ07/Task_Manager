@@ -1,13 +1,19 @@
-const API = "http://127.0.0.1:5000";
+const API = "";
 
 // LOAD TASKS
 function loadTasks() {
     const taskList = document.getElementById("taskList") || document.getElementById("list");
     if (!taskList) return; // prevent error on other pages
 
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user || !user.id) {
+        console.error("User not logged in");
+        return;
+    }
+
     console.log("Loading tasks from API...");
     
-    fetch(`${API}/api/tasks`)
+    fetch(`${API}/api/tasks?user_id=${user.id}`)
         .then(res => {
             console.log("Response status:", res.status);
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -87,9 +93,15 @@ function loadTasks() {
 function addTask() {
     const title = document.getElementById("title")?.value.trim();
     const desc = document.getElementById("desc")?.value.trim();
+    const user = JSON.parse(localStorage.getItem('currentUser'));
 
     if (!title) {
         alert("Title is required!");
+        return;
+    }
+
+    if (!user || !user.id) {
+        alert("Please log in first!");
         return;
     }
 
@@ -99,6 +111,7 @@ function addTask() {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
+            user_id: user.id,
             title: title,
             description: desc
         })
@@ -120,11 +133,20 @@ function addTask() {
 
 // COMPLETE 
 function completeTask(id) {
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user || !user.id) {
+        alert("Please log in first!");
+        return;
+    }
+
     fetch(`${API}/api/tasks/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+            user_id: user.id
+        })
     })
     .then(res => res.json())
     .then(data => {
@@ -147,11 +169,20 @@ function deleteTask(id) {
         return;
     }
     
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+    if (!user || !user.id) {
+        alert("Please log in first!");
+        return;
+    }
+    
     fetch(`${API}/api/tasks/${id}`, {
         method: "DELETE",
         headers: {
             "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({
+            user_id: user.id
+        })
     })
     .then(res => res.json())
     .then(data => {
