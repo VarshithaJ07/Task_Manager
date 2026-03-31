@@ -1,6 +1,6 @@
 # Task Manager
 
-A simple and intuitive web-based task management application built with Flask backend and vanilla JavaScript frontend. Organize your daily activities, create tasks, set priorities, and boost your productivity with an easy-to-use interface.
+A simple and intuitive web-based task management application built with Flask backend and vanilla JavaScript frontend. Organize your daily activities, create tasks and boost your productivity with an easy-to-use interface.
 
 ## Features
 
