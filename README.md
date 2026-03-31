@@ -296,6 +296,7 @@ CREATE TABLE tasks (
 8. **No Email Verification**: No email confirmation for new user registrations.
 9. **No Task Due Dates**: Simple pending/completed status; no deadline tracking.
 10. **Single Database**: No environment-specific configurations for dev/prod.
+11. **Integer Primary Keys**: Currently using INT AUTO_INCREMENT for IDs. For production applications with large-scale data, migrate to UUID (CHAR(36)) or BIGINT to prevent integer overflow. UUID example: `id CHAR(36) PRIMARY KEY`.
 
 ## Technical Stack
 
@@ -378,12 +379,14 @@ CREATE TABLE tasks (
 
 ## Future Enhancements
 
+- [ ] Password Encryption (bcrypt/argon2)
 - [ ] Task Due Dates and Reminders
 - [ ] Task Priority Levels
 - [ ] Task Categories/Tags
 - [ ] User Settings & Preferences
 - [ ] Password Reset via Email
 - [ ] Task Search and Filtering
+- [ ] Pagination for Tasks
 - [ ] Dark Mode Toggle
 - [ ] Export Tasks to CSV/PDF
 - [ ] Mobile App (React Native)
