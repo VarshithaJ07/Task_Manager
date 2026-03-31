@@ -96,7 +96,7 @@ window.addEventListener('load', function() {
     const id = localStorage.getItem("userId");
     
     // Fetch user profile
-    fetch(`http://127.0.0.1:5000/user/${id}`)
+    fetch(`/user/${id}`)
     .then(res=>res.json())
     .then(user=>{
         document.getElementById('profile').innerHTML = `
@@ -117,23 +117,6 @@ window.addEventListener('load', function() {
                     </div>
                 </div>
             </div>
-            <div class="profile-section">
-                <h3 class="section-title">Account Details</h3>
-                <div class="profile-field">
-                    <div class="field-icon">🆔</div>
-                    <div class="field-content">
-                        <label>User ID</label>
-                        <p>${user.id || 'N/A'}</p>
-                    </div>
-                </div>
-                <div class="profile-field">
-                    <div class="field-icon">📅</div>
-                    <div class="field-content">
-                        <label>Member Since</label>
-                        <p>March 2026</p>
-                    </div>
-                </div>
-            </div>
         `;
     })
     .catch(err => {
@@ -141,7 +124,7 @@ window.addEventListener('load', function() {
     });
 
     // Fetch task statistics
-    fetch(`http://127.0.0.1:5000/api/tasks`)
+    fetch(`/api/tasks`)
     .then(res=>res.json())
     .then(tasks=>{
         const completed = Array.isArray(tasks) ? tasks.filter(t => t.status === 'completed').length : 0;
