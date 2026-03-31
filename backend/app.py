@@ -112,6 +112,9 @@ def create_task():
         data = request.json
         print(f"Creating task with data: {data}")
         
+        if not data or not data.get('title') or not data.get('user_id'):
+            return jsonify({"error": "Missing required fields (title, user_id)"}), 400
+        
         conn = get_db_connection()
         if not conn:
             return jsonify({"error": "Database connection failed"}), 500
@@ -119,9 +122,9 @@ def create_task():
         cursor = conn.cursor()
 
         cursor.execute("""
-            INSERT INTO tasks (title, description, status, created_date)
-            VALUES (%s, %s, %s, %s)
-        """, (data['title'], data.get('description', ''), 'pending', datetime.now()))
+            INSERT INTO tasks (user_id, title, description, status, created_date)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (data['user_id'], data['title'], data.get('description', ''), 'pending', datetime.now()))
 
         conn.commit()
         cursor.close()
@@ -138,13 +141,18 @@ def create_task():
 @app.route('/api/tasks', methods=['GET'])
 def get_tasks():
     try:
+        user_id = request.args.get('user_id')
+        
+        if not user_id:
+            return jsonify({"error": "user_id is required", "tasks": []}), 400
+        
         conn = get_db_connection()
         if not conn:
             return jsonify({"error": "Database connection failed", "tasks": []}), 500
             
         cursor = conn.cursor(dictionary=True)
 
-        cursor.execute("SELECT * FROM tasks ORDER BY created_date DESC")
+        cursor.execute("SELECT * FROM tasks WHERE user_id=%s ORDER BY created_date DESC", (user_id,))
         tasks = cursor.fetchall()
 
         cursor.close()
@@ -154,7 +162,7 @@ def get_tasks():
         if tasks is None:
             tasks = []
             
-        print(f"Retrieved {len(tasks)} tasks from database")
+        print(f"Retrieved {len(tasks)} tasks for user {user_id}")
         return jsonify(tasks)
     except Exception as e:
         print(f"Error getting tasks: {str(e)}")
@@ -165,17 +173,28 @@ def get_tasks():
 @app.route('/api/tasks/<int:id>', methods=['PUT'])
 def update_task(id):
     try:
+        data = request.json
+        user_id = data.get('user_id') if data else None
+        
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
 
-        # Get current status
-        cursor.execute("SELECT status FROM tasks WHERE id=%s", (id,))
+        # Get current status and verify ownership
+        cursor.execute("SELECT status, user_id FROM tasks WHERE id=%s", (id,))
         task = cursor.fetchone()
         
         if not task:
             cursor.close()
             conn.close()
             return jsonify({"error": "Task not found"}), 404
+        
+        if task['user_id'] != int(user_id):
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Unauthorized"}), 403
 
         # Toggle status
         new_status = 'pending' if task['status'] == 'completed' else 'completed'
@@ -196,15 +215,35 @@ def update_task(id):
 @app.route('/api/tasks/<int:id>', methods=['DELETE'])
 def delete_task(id):
     try:
+        data = request.json
+        user_id = data.get('user_id') if data else None
+        
+        if not user_id:
+            return jsonify({"error": "user_id is required"}), 400
+        
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(dictionary=True)
+
+        # Verify ownership before deleting
+        cursor.execute("SELECT user_id FROM tasks WHERE id=%s", (id,))
+        task = cursor.fetchone()
+        
+        if not task:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Task not found"}), 404
+        
+        if task['user_id'] != int(user_id):
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Unauthorized"}), 403
 
         cursor.execute("DELETE FROM tasks WHERE id=%s", (id,))
         conn.commit()
 
         cursor.close()
         conn.close()
-        print(f"Task {id} deleted")
+        print(f"Task {id} deleted by user {user_id}")
         return jsonify({"message": "Deleted"})
     except Exception as e:
         print(f"Error deleting task: {str(e)}")
