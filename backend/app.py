@@ -10,6 +10,7 @@ app = Flask(__name__,
     static_url_path='')
 CORS(app)
 
+
 @app.route('/')
 def home_page():
     return render_template('index.html')
@@ -38,7 +39,7 @@ def add_task_page():
 def profile_page():
     return render_template('profile.html')
 
-# ================= USER APIs =================
+#USER APIs 
 
 # Register API
 @app.route('/api/register', methods=['POST'])
@@ -102,7 +103,7 @@ def get_user(id):
     return jsonify(user)
 
 
-# ================= TASK APIs =================
+#  TASK APIs 
 
 # Create Task
 @app.route('/api/tasks', methods=['POST'])
